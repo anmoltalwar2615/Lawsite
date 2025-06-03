@@ -1,4 +1,3 @@
-// Google Translate Toggle Logic
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'en',
@@ -8,35 +7,38 @@ function googleTranslateElementInit() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const translateBtn = document.getElementById('translateBtn');
-  const container = document.getElementById('google_translate_element');
+  const translateBtn = document.getElementById("translateBtn");
+  let currentLang = 'en';
 
-  if (translateBtn && container) {
-    container.style.display = 'none'; // Hide the dropdown UI
-
-    translateBtn.addEventListener('click', () => {
-      const select = document.querySelector('.goog-te-combo');
-      if (!select) return;
-
-      const currentLang = select.value;
-      const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
-
-      select.value = newLang;
-      select.dispatchEvent(new Event('change'));
-
-      translateBtn.innerText = newLang === 'zh-CN' ? 'English' : '中文';
-    });
-
-    // Auto update label if user reloads after translating
-    const observer = new MutationObserver(() => {
-      const select = document.querySelector('.goog-te-combo');
-      if (select) {
-        translateBtn.innerText = select.value === 'zh-CN' ? 'English' : '中文';
-        observer.disconnect();
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+  function switchLanguage(lang) {
+    const select = document.querySelector(".goog-te-combo");
+    if (select) {
+      select.value = lang;
+      select.dispatchEvent(new Event("change"));
+    }
   }
+
+  function updateButtonLabel() {
+    translateBtn.textContent = currentLang === 'zh-CN' ? "English" : "中文";
+  }
+
+  let tries = 0;
+  const interval = setInterval(() => {
+    const select = document.querySelector(".goog-te-combo");
+    if (select) {
+      clearInterval(interval);
+      updateButtonLabel();
+
+      translateBtn.addEventListener("click", () => {
+        currentLang = currentLang === 'en' ? 'zh-CN' : 'en';
+        switchLanguage(currentLang);
+        setTimeout(updateButtonLabel, 500); // Allow time for translation to apply
+      });
+    } else if (++tries > 20) {
+      clearInterval(interval);
+      console.error("Google Translate dropdown not found.");
+    }
+  }, 500);
 
   // Slideshow Logic
   const slides = document.querySelectorAll('.slide');
