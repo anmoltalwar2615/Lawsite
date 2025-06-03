@@ -2,30 +2,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const translateBtn = document.getElementById("translateBtn");
   let currentLang = "en";
 
-  // Retry logic to wait for Translate dropdown to load
+  function switchLanguage(lang) {
+    const select = document.querySelector(".goog-te-combo");
+    if (select) {
+      select.value = lang;
+      select.dispatchEvent(new Event("change"));
+    }
+  }
+
+  function updateButtonLabel() {
+    translateBtn.textContent = currentLang === 'zh-CN' ? "English" : "中文";
+  }
+
   const interval = setInterval(() => {
     const select = document.querySelector(".goog-te-combo");
-
     if (select && translateBtn) {
       clearInterval(interval);
-
-      // Initial label
-      translateBtn.textContent = "中文";
+      updateButtonLabel();
 
       translateBtn.addEventListener("click", () => {
-        currentLang = select.value === "en" ? "zh-CN" : "en";
-        select.value = currentLang;
-        select.dispatchEvent(new Event("change"));
-
-        // Update button label after language switch
-        setTimeout(() => {
-          translateBtn.textContent = currentLang === "en" ? "中文" : "English";
-        }, 300);
+        currentLang = currentLang === 'en' ? 'zh-CN' : 'en';
+        switchLanguage(currentLang);
+        setTimeout(updateButtonLabel, 500); // Delay to allow translation
       });
     }
   }, 300);
-
-  // SLIDESHOW CODE (leave unchanged)
+});
+ // SLIDESHOW CODE (leave unchanged)
   const slides = document.querySelectorAll('.slide');
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
