@@ -1,33 +1,31 @@
 document.addEventListener("DOMContentLoaded", () => {
   const translateBtn = document.getElementById("translateBtn");
-  let currentLang = 'en';
+  let currentLang = "en";
 
-  // Try every 500ms until dropdown is found
-  const tryInterval = setInterval(() => {
+  // Retry logic to wait for Translate dropdown to load
+  const interval = setInterval(() => {
     const select = document.querySelector(".goog-te-combo");
 
     if (select && translateBtn) {
-      clearInterval(tryInterval);
+      clearInterval(interval);
 
-      // Set initial button label
-      translateBtn.textContent = currentLang === 'en' ? '中文' : 'English';
+      // Initial label
+      translateBtn.textContent = "中文";
 
       translateBtn.addEventListener("click", () => {
-        currentLang = currentLang === 'en' ? 'zh-CN' : 'en';
+        currentLang = select.value === "en" ? "zh-CN" : "en";
         select.value = currentLang;
         select.dispatchEvent(new Event("change"));
 
-        // Delay label update slightly for Google Translate to switch
+        // Update button label after language switch
         setTimeout(() => {
-          translateBtn.textContent = currentLang === 'en' ? '中文' : 'English';
+          translateBtn.textContent = currentLang === "en" ? "中文" : "English";
         }, 300);
       });
     }
-  }, 500);
-});
+  }, 300);
 
-
-// Slideshow Logic
+  // SLIDESHOW CODE (leave unchanged)
   const slides = document.querySelectorAll('.slide');
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
