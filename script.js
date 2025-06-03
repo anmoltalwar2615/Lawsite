@@ -1,26 +1,42 @@
-// Google Translate Initialization (required for the widget, if ever needed)
+// Google Translate Toggle Logic
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'en',
-    includedLanguages: 'zh-CN',
+    includedLanguages: 'zh-CN,en',
     layout: google.translate.TranslateElement.InlineLayout.SIMPLE
   }, 'google_translate_element');
 }
 
-// DOM Ready
 document.addEventListener("DOMContentLoaded", () => {
   const translateBtn = document.getElementById('translateBtn');
+  const container = document.getElementById('google_translate_element');
 
-  translateBtn?.addEventListener('click', () => {
-    let currentURL = window.location.href;
+  if (translateBtn && container) {
+    container.style.display = 'none'; // Hide the dropdown UI
 
-    // 🔁 Force HTTP, not HTTPS (since your server doesn't support HTTPS)
-    currentURL = currentURL.replace(/^https:/, 'http:');
+    translateBtn.addEventListener('click', () => {
+      const select = document.querySelector('.goog-te-combo');
+      if (!select) return;
 
-    const translatedURL = `https://translate.google.com/translate?hl=zh-CN&sl=en&u=${encodeURIComponent(currentURL)}&prev=search`;
-    window.open(translatedURL, '_blank');
-  });
+      const currentLang = select.value;
+      const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
 
+      select.value = newLang;
+      select.dispatchEvent(new Event('change'));
+
+      translateBtn.innerText = newLang === 'zh-CN' ? 'English' : '中文';
+    });
+
+    // Auto update label if user reloads after translating
+    const observer = new MutationObserver(() => {
+      const select = document.querySelector('.goog-te-combo');
+      if (select) {
+        translateBtn.innerText = select.value === 'zh-CN' ? 'English' : '中文';
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
 
   // Slideshow Logic
   const slides = document.querySelectorAll('.slide');
@@ -50,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showSlide(currentSlide);
     });
 
-    setInterval(autoSlide, 10000); // Auto slide every 10 seconds
-    showSlide(currentSlide); // Initialize
+    setInterval(autoSlide, 10000);
+    showSlide(currentSlide);
   }
 });
