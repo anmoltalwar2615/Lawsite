@@ -1,46 +1,33 @@
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    includedLanguages: 'zh-CN,en',
-    layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-  }, 'google_translate_element');
-}
-
 document.addEventListener("DOMContentLoaded", () => {
   const translateBtn = document.getElementById("translateBtn");
   let currentLang = 'en';
 
-  function switchLanguage(lang) {
+  // Try every 500ms until dropdown is found
+  const tryInterval = setInterval(() => {
     const select = document.querySelector(".goog-te-combo");
-    if (select) {
-      select.value = lang;
-      select.dispatchEvent(new Event("change"));
-    }
-  }
 
-  function updateButtonLabel() {
-    translateBtn.textContent = currentLang === 'zh-CN' ? "English" : "中文";
-  }
+    if (select && translateBtn) {
+      clearInterval(tryInterval);
 
-  let tries = 0;
-  const interval = setInterval(() => {
-    const select = document.querySelector(".goog-te-combo");
-    if (select) {
-      clearInterval(interval);
-      updateButtonLabel();
+      // Set initial button label
+      translateBtn.textContent = currentLang === 'en' ? '中文' : 'English';
 
       translateBtn.addEventListener("click", () => {
         currentLang = currentLang === 'en' ? 'zh-CN' : 'en';
-        switchLanguage(currentLang);
-        setTimeout(updateButtonLabel, 500); // Allow time for translation to apply
+        select.value = currentLang;
+        select.dispatchEvent(new Event("change"));
+
+        // Delay label update slightly for Google Translate to switch
+        setTimeout(() => {
+          translateBtn.textContent = currentLang === 'en' ? '中文' : 'English';
+        }, 300);
       });
-    } else if (++tries > 20) {
-      clearInterval(interval);
-      console.error("Google Translate dropdown not found.");
     }
   }, 500);
+});
 
-  // Slideshow Logic
+
+// Slideshow Logic
   const slides = document.querySelectorAll('.slide');
   const prevBtn = document.getElementById('prev');
   const nextBtn = document.getElementById('next');
